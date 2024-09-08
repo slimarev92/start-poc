@@ -1,5 +1,4 @@
-import { createAsync } from '@solidjs/router';
-import { createMemo, For, Suspense } from 'solid-js';
+import { createMemo, For, Suspense, createResource } from 'solid-js';
 
 type Language = {
     name: string;
@@ -62,7 +61,7 @@ const getFrameworks = async () => {
 };
 
 function Frameworks() {
-    const frameworks = createAsync(() => getFrameworks());
+    const [frameworks] = createResource(() => getFrameworks());
 
     return (
         <>
@@ -80,22 +79,22 @@ function Frameworks() {
 }
 
 export default function Home() {
-    const languages = createAsync(() => getLanguages());
-    const numOfLangs = createMemo(() => {
-        return languages()?.length;
-    });
+  const [languages] = createResource(() => getLanguages());
+  const numOfLangs = createMemo(() => {
+    return languages()?.length;
+  });
 
-    return (
-        <>
-            <div>
-                There are {numOfLangs()} languages
-                <For each={languages()}>{(lang) => <div>{lang.name}</div>}</For>
-            </div>
-            <div>
-                <Suspense fallback={'Inner loading...'}>
-                    <Frameworks />
-                </Suspense>
-            </div>
-        </>
-    );
+  return (
+    <Suspense fallback={"loading..."}>
+      <div>
+        There are {numOfLangs()} languages
+        <For each={languages()}>{(lang) => <div>{lang.name}</div>}</For>
+      </div>
+      <div>
+        <Suspense fallback={"Inner loading..."}>
+          <Frameworks />
+        </Suspense>
+      </div>
+    </Suspense>
+  );
 }
